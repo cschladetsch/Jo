@@ -105,23 +105,24 @@ public class App {
     }
 
     private void moveToRepo(int targetNum) {
-        optionalExec(".leave");
-        execute("cd " + gitFolders.get(targetNum).getPath().toString());
-        optionalExec(".enter");
+        optionalExec(getCurrentDir(), ".leave");
+        String targetPath = gitFolders.get(targetNum).getPath().toString();
+        execute("cd " + targetPath);
+        optionalExec(targetPath, ".enter");
     }
 
-    private void optionalExec(String fileName) {
-        Optional<File> script = findAbove(getCurrentDir(), fileName);
-        if (script.isPresent())
-            execute("source " + script.get().toString());
+    private void optionalExec(String dir, String fileName) {
+        String script = findAbove(dir, fileName);
+        if (script != null)
+            execute("source " + script);
     }
 
     private String getWorkDir() {
-        return System.getenv(WORK_DIR));
+        return System.getenv(WORK_DIR);
     }
 
-    private Optional<File> findAbove(String dir, String fileName) {
-        if (dir == getWorkDir())
+    private String findAbove(String dir, String fileName) {
+        if (dir == null || dir.equals(getWorkDir()))
             return null;
 
         File path = Paths.get(dir).toFile();
@@ -129,10 +130,10 @@ public class App {
             return null;
 
         Optional<File> found = Arrays.stream(path.listFiles())
-                .filter(g -> g.isDirectory() && g.getName().equals(fileName))
+                .filter(g -> g.isFile() && g.getName().equals(fileName))
                 .findFirst();
 
-        return found.isPresent() ? found : findAbove(path.getParent(), fileName);
+        return found.isPresent() ? found.get().toString() : findAbove(path.getParent(), fileName);
     }
 
     private void showRepos() {
