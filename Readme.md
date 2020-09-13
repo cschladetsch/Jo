@@ -2,6 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/github/cschladetsch/jo?svg=true)](https://ci.appveyor.com/project/cschladetsch/jo)
 [![CodeFactor](https://www.codefactor.io/repository/github/cschladetsch/jo/badge)](https://www.codefactor.io/repository/github/cschladetsch/jo)
+[![License](https://img.shields.io/github/license/cschladetsch/jo.svg?label=License&maxAge=86400)](./LICENSE.txt)
 
 A tool to see the status of your git repos, and to switch between them quickly. Written in Java.
 
