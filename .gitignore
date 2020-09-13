@@ -1,3 +1,9 @@
 /.idea
 /target
 
+/.prev
+/.next
+/.current
+
+/out
+

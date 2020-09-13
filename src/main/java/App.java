@@ -12,7 +12,7 @@ public class App {
     public static void main(String[] args) {
         //System.getenv("WORK_DIR"));
         try {
-            new App().run();
+            new App(args);
         } catch (IOException e) {
             e.printStackTrace();
             error(e.toString());
@@ -32,16 +32,27 @@ public class App {
         execute("echo " + text);
     }
 
-    public App() throws IOException {
+    public App(String[] args) throws IOException {
+        File reposDir = getReposRoot();
+        if (reposDir == null) {
+            error("Couldn't find a repos folder.");
+            return;
+        }
+
+        getRepos(reposDir);
+
+        run(args);
+    }
+
+    private File getReposRoot() {
         String currentDir = System.getProperty("user.dir");
         Path repos = Paths.get(currentDir, "repos");
         File reposDir = repos.toFile();
         if (!reposDir.isDirectory()) {
             error(String.format("%s is not a directory", repos.toString()));
-            return;
+            return null;
         }
-
-        getRepos(reposDir);
+        return reposDir;
     }
 
     private void getRepos(File reposDir) throws IOException {
@@ -65,9 +76,23 @@ public class App {
         }
     }
 
-    public void run() {
-        //System.out.println(String.format("Git Status: %s", repos.toString()));
+    public void run(String[] args) {
+        if (args.length == 0) {
+            showRepos();
+            return;
+        }
 
+        // TODO: add https://picocli.info/
+        int repoNum = Integer.parseInt(args[0]);
+        if (repoNum < 0 || repoNum > gitFolders.size()) {
+            error("Invalid repo number");
+            return;
+        }
+
+        execute("cd " + gitFolders.get(repoNum).getPath().toString());
+    }
+
+    private void showRepos() {
         int n = 0;
         for (Repo repo : gitFolders) {
             String text = String.format("%s %s", n++, repo.getName());
