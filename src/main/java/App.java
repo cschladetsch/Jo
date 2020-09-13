@@ -1,8 +1,5 @@
-import sun.font.Script;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -83,7 +80,7 @@ public class App {
             return;
         }
 
-        // TODO: add https://picocli.info/
+        // add https://picocli.info/
         int repoNum = 0;
         try {
             repoNum = Integer.parseInt(args[0]);
