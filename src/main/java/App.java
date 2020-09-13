@@ -1,10 +1,8 @@
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class App {
     private ArrayList<Repo> gitFolders = new ArrayList<>();
@@ -61,8 +59,7 @@ public class App {
             return;
         }
 
-        for (File dir : reposDir.listFiles())
-        {
+        for (File dir : reposDir.listFiles()) {
             if (!dir.isDirectory())
                 continue;
 

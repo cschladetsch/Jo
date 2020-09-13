@@ -14,11 +14,11 @@ import java.util.List;
 public class Repo {
     private Path path;
     private String currentLocation;
-    private Git git;
+//    private Git git;
 
     public Repo(Path path) throws IOException {
         this.path = path;
-        this.git = Git.open(path.toFile());
+        //this.git = Git.open(path.toFile());
 
         getCurrent(path);
     }
@@ -47,13 +47,13 @@ public class Repo {
     }
 
     public Boolean isModified() {
-        StatusCommand status = git.status();
-        try {
-            Status call = status.call();
-            return call.isClean();
-        } catch (GitAPIException e) {
-            App.error(e.getMessage());
-        }
+//        StatusCommand status = git.status();
+//        try {
+//            Status call = status.call();
+//            return call.isClean();
+//        } catch (GitAPIException e) {
+//            App.error(e.getMessage());
+//        }
 
         return false;
     }
