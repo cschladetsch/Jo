@@ -12,18 +12,21 @@ public class App {
         try {
             new App(args);
         } catch (IOException e) {
-            e.printStackTrace();
             error(e.toString());
         }
     }
 
     public static void error(String text) {
-        System.err.println(text);
+        printErr(text);
         execute("exit -1");
     }
 
     public static void execute(String text) {
         System.out.println(text);
+    }
+
+    public static void printErr(String text) {
+        System.err.println(text);
     }
 
     public static void print(String text) {
@@ -43,14 +46,13 @@ public class App {
     }
 
     private File getReposRoot() {
-        String currentDir = System.getProperty("user.dir");
-        Path repos = Paths.get(currentDir, "repos");
-        File reposDir = repos.toFile();
-        if (!reposDir.isDirectory()) {
+        String root = System.getenv("WORK2_DIR");
+        File repos = Paths.get(root, "repos").toFile();
+        if (!repos.isDirectory()) {
             error(String.format("%s is not a directory", repos.toString()));
             return null;
         }
-        return reposDir;
+        return repos;
     }
 
     private void getRepos(File reposDir) throws IOException {
@@ -80,7 +82,15 @@ public class App {
         }
 
         // TODO: add https://picocli.info/
-        int repoNum = Integer.parseInt(args[0]);
+        int repoNum = 0;
+        try {
+            repoNum = Integer.parseInt(args[0]);
+        }
+        catch (Exception e) {
+            error(e.toString());
+            return;
+        }
+
         if (repoNum < 0 || repoNum > gitFolders.size()) {
             error("Invalid repo number");
             return;

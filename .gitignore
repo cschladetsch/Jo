@@ -1,9 +1,10 @@
 /.idea
+/out
 /target
 
+# used by previous 'go' system
 /.prev
 /.next
 /.current
 
-/out
 
