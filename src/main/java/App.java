@@ -1,3 +1,5 @@
+import sun.font.Script;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -6,9 +8,9 @@ import java.util.*;
 
 public class App {
     private ArrayList<Repo> gitFolders = new ArrayList<>();
+    private String WORK_DIR = "WORK2_DIR";
 
     public static void main(String[] args) {
-        //System.getenv("WORK_DIR"));
         try {
             new App(args);
         } catch (IOException e) {
@@ -85,8 +87,7 @@ public class App {
         int repoNum = 0;
         try {
             repoNum = Integer.parseInt(args[0]);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             error(e.toString());
             return;
         }
@@ -96,13 +97,49 @@ public class App {
             return;
         }
 
-        execute("cd " + gitFolders.get(repoNum).getPath().toString());
+        moveToRepo(repoNum);
+    }
+
+    String getCurrentDir() {
+        return System.getProperty("user.dir");
+    }
+
+    private void moveToRepo(int targetNum) {
+        optionalExec(".leave");
+        execute("cd " + gitFolders.get(targetNum).getPath().toString());
+        optionalExec(".enter");
+    }
+
+    private void optionalExec(String fileName) {
+        Optional<File> script = findAbove(getCurrentDir(), fileName);
+        if (script.isPresent())
+            execute("source " + script.get().toString());
+    }
+
+    private String getWorkDir() {
+        return System.getenv(WORK_DIR));
+    }
+
+    private Optional<File> findAbove(String dir, String fileName) {
+        if (dir == getWorkDir())
+            return null;
+
+        File path = Paths.get(dir).toFile();
+        if (!path.isDirectory())
+            return null;
+
+        Optional<File> found = Arrays.stream(path.listFiles())
+                .filter(g -> g.isDirectory() && g.getName().equals(fileName))
+                .findFirst();
+
+        return found.isPresent() ? found : findAbove(path.getParent(), fileName);
     }
 
     private void showRepos() {
         int n = 0;
         for (Repo repo : gitFolders) {
-            String text = String.format("%s %s", n++, repo.getName());
+            String mod = repo.isModified() ? "*" : " ";
+            String text = String.format("%s%s %s", mod, n++, repo.getName());
             print(text);
         }
     }
