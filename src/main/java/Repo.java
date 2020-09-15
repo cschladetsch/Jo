@@ -50,7 +50,7 @@ public class Repo {
         StatusCommand status = git.status();
         try {
             Status call = status.call();
-            return call.isClean();
+            return call.hasUncommittedChanges() || !call.getModified().isEmpty();
         } catch (GitAPIException e) {
             App.error(e.getMessage());
         }
