@@ -1,5 +1,3 @@
-import jdk.nashorn.internal.runtime.options.Option;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,13 +6,13 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class App {
-    private ArrayList<Repo> gitFolders = new ArrayList<>();
+    private List<Repo> gitFolders = new ArrayList<Repo>();
     private String WORK_ROOT_ENV_VAR = "WORK2_ROOT";
 
     public static void main(String[] args) {
         try {
             new App().run(args);
-        } catch (IOException e) {
+        } catch (Exception e) {
             error(e.toString());
         }
     }
@@ -55,13 +53,13 @@ public class App {
 
         Path repos = Paths.get(root.toString(), "repos");
         if (!Files.exists(repos)) {
-            error("Repos folder + " + repos.toString() + " doesn't exist");
+            error("Repos folder + '" + repos.toString() + "' doesn't exist");
             return Optional.empty();
         }
 
         if (!Files.isDirectory(repos)) {
             error(repos.toString() + " is not a directory");
-            return null;
+            return Optional.empty();
         }
 
         return Optional.of(repos);
