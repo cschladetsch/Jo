@@ -1,15 +1,19 @@
+import jdk.nashorn.internal.runtime.options.Option;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 public class App {
     private ArrayList<Repo> gitFolders = new ArrayList<>();
-    private String WORK_DIR = "WORK2_DIR";
+    private String WORK_ROOT_ENV_VAR = "WORK2_ROOT";
 
     public static void main(String[] args) {
         try {
-            new App(args);
+            new App().run(args);
         } catch (IOException e) {
             error(e.toString());
         }
@@ -32,41 +36,45 @@ public class App {
         execute("echo " + text);
     }
 
-    public App(String[] args) throws IOException {
-        File reposDir = getReposRoot();
-        if (reposDir == null) {
-            error("Couldn't find a repos folder.");
+    public App() throws IOException {
+        Optional<Path> repos = getReposRoot();
+        if (!repos.isPresent()) {
             return;
         }
 
-        getRepos(reposDir);
-
-        run(args);
+        getRepos(repos.get());
     }
 
-    private File getReposRoot() {
-        String root = System.getenv("WORK2_DIR");
-        File repos = Paths.get(root, "repos").toFile();
-        if (!repos.isDirectory()) {
-            error(String.format("%s is not a directory", repos.toString()));
+    private Optional<Path> getReposRoot() {
+        String rootName = System.getenv(WORK_ROOT_ENV_VAR);
+        Path root = Paths.get(rootName);
+        if (!Files.exists(root)) {
+            error(WORK_ROOT_ENV_VAR + "='" + root.toString() + ": folder doesn't exist");
+            return Optional.empty();
+        }
+
+        Path repos = Paths.get(root.toString(), "repos");
+        if (!Files.exists(repos)) {
+            error("Repos folder + " + repos.toString() + " doesn't exist");
+            return Optional.empty();
+        }
+
+        if (!Files.isDirectory(repos)) {
+            error(repos.toString() + " is not a directory");
             return null;
         }
-        return repos;
+
+        return Optional.of(repos);
     }
 
-    private void getRepos(File reposDir) throws IOException {
-        if (!reposDir.exists()) {
-            App.error(String.format("%s is not a directory.", reposDir.toString()));
-            return;
-        }
-
-        for (File dir : reposDir.listFiles()) {
+    private void getRepos(Path reposDir) throws IOException {
+        for (File dir : reposDir.toFile().listFiles()) {
             if (!dir.isDirectory())
                 continue;
 
             Optional<File> gitFolder = Arrays.stream(dir.listFiles())
                     .filter(g -> g.isDirectory() && g.getName().equals(".git"))
-                    .findAny();
+                    .findFirst();
 
             if (gitFolder.isPresent()) {
                 gitFolders.add(new Repo(dir.toPath()));
@@ -80,7 +88,7 @@ public class App {
             return;
         }
 
-        // add https://picocli.info/
+        // should add https://picocli.info/ when we start adding arguments
         int repoNum = 0;
         try {
             repoNum = Integer.parseInt(args[0]);
@@ -115,7 +123,7 @@ public class App {
     }
 
     private String getWorkDir() {
-        return System.getenv(WORK_DIR);
+        return System.getenv(WORK_ROOT_ENV_VAR);
     }
 
     private String findAbove(String dir, String fileName) {
